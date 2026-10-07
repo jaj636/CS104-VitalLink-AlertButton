@@ -1,5 +1,13 @@
 import time
+import requests
 import RPi.GPIO as GPIO
+import os
+from dotenv import load_dotenv # import the load_dotenv function
+
+load_dotenv() # tell python to look at the .env file
+BOT_TOKEN = os.getenv("BOT_TOKEN") # get the BOT_TOKEN environment variable
+CHAT_ID = os.getenv("CHAT_ID") # get the CHAT_ID environmet variable
+
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
@@ -10,6 +18,13 @@ try:
     while True:
         if GPIO.input(7) == GPIO.HIGH and not button_pressed:
             print("Someone pressed the alert button!")
+
+            response = requests.post(
+	          f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                  json={"chat_id": CHAT_ID, "text":"Someone pressed the alert button!"}
+ 	    )
+            print(response.status_code)
+            print(response.text)
             button_pressed = True
         elif GPIO.input(7) == GPIO.LOW:
             button_pressed = False
